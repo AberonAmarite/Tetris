@@ -46,3 +46,4 @@ class GameController:
         self.view.quit()
         self.model.quit()
 
+

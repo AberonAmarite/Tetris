@@ -107,6 +107,7 @@ class Game:
         self.board = self.new_board()
         self.new_stone()
 
+    # noinspection PyMethodMayBeStatic
     def quit(self):
         sys.exit()
 
@@ -131,7 +132,7 @@ class Game:
     # noinspection PyMethodMayBeStatic
     def remove_row(self, board, row):
         del board[row]
-        return [[0 for i in range(COLS)]] + board
+        return [[0 for _ in range(COLS)]] + board
 
     # noinspection PyMethodMayBeStatic
     def join_matrices(self, mat1, mat2, mat2_off):
@@ -143,8 +144,8 @@ class Game:
 
     # noinspection PyMethodMayBeStatic
     def new_board(self, ):
-        board = [[0 for x in range(COLS)]
-                 for y in range(ROWS)]
+        board = [[0 for _ in range(COLS)]
+                 for _ in range(ROWS)]
 
-        board += [[1 for x in range(COLS)]]
+        board += [[1 for _ in range(COLS)]]
         return board
