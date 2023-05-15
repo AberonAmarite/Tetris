@@ -37,6 +37,7 @@ class GameView:
         self.play_info = PlayInfo(model, self)
         self.play_area = PlayArea(model, self)
         self.login_page = LoginPage(self)
+        self.login_page.set_top_scores(self.model.top_scores)
         self.start_game_page = StartGamePage(self)
 
         pygame.event.set_blocked(pygame.MOUSEMOTION)  # We do not need
@@ -72,5 +73,9 @@ class GameView:
         self.center_msg("Exiting...")
         pygame.display.update()
 
-    def set_username(self, name):
-        self.start_game_page.set_username(name)
+    def set_user(self, name):
+        if name:
+            self.start_game_page.set_username(name)
+            self.start_game_page.set_scores(self.model.highest_score, self.model.recent_score)
+
+

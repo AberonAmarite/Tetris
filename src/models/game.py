@@ -3,8 +3,8 @@ import sys
 import pygame
 from random import randrange as rand
 
+from src.models.database import GameDatabase
 from src.models.game_manager import GameManager
-
 
 COLS = 10
 ROWS = 20
@@ -39,6 +39,11 @@ GAME_PAGE = "game"
 class Game:
     def __init__(self) -> None:
         self.game_manager = GameManager()
+        self.db = GameDatabase()
+        self.top_scores = self.db.get_top_scores()
+        self.highest_score = 0
+        self.recent_score = 0
+
         self.state = LOGIN_PAGE
         self.username = ""
         pygame.init()
@@ -53,7 +58,17 @@ class Game:
         self.stone_x = None
         self.stone_y = None
 
+        self.bgm = pygame.mixer.Sound("assets/sounds/BGM.mp3")
+        self.sound_drop = pygame.mixer.Sound("assets/sounds/Drop.wav")
+        self.sound_gameover = pygame.mixer.Sound("assets/sounds/Gameover.wav")
+        self.sound_lineclear = pygame.mixer.Sound("assets/sounds/Lineclear.wav")
+
+        self.bgm.play(-1)
         self.init_game()
+
+    def set_user_scores(self, username):
+        self.highest_score = self.db.get_highest_score(username)
+        self.recent_score = self.db.get_most_recent_score(username)
 
     def set_state(self, state):
         self.state = state
@@ -61,8 +76,13 @@ class Game:
     def set_username(self, name):
         self.username = name
 
+    def set_user(self, name):
+        self.set_username(name)
+        self.set_user_scores(name)
+
     def drop(self):
         if not self.gameover and not self.paused:
+            self.sound_drop.play(0)
             self.stone_y += 1
             if self.check_collision(self.board,
                                     self.stone,
@@ -81,7 +101,9 @@ class Game:
                             lines_removed += 1
                             break
                     else:
-                        self.game_manager.update_state(lines_removed)
+                        if lines_removed:
+                            self.game_manager.update_state(lines_removed)
+                            self.sound_lineclear.play(0)
                         break
 
     def rotate_stone(self):
@@ -120,7 +142,12 @@ class Game:
         if self.check_collision(self.board,
                                 self.stone,
                                 (self.stone_x, self.stone_y)):
-            self.gameover = True
+            self.finish_game()
+
+    def finish_game(self):
+        self.gameover = True
+        self.sound_gameover.play(0)
+        self.db.insert_score(self.username, self.game_manager.score)
 
     def init_game(self):
         self.board = self.new_board()
@@ -128,6 +155,7 @@ class Game:
 
     # noinspection PyMethodMayBeStatic
     def quit(self):
+        self.finish_game()
         sys.exit()
 
     # noinspection PyMethodMayBeStatic

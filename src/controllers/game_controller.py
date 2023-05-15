@@ -25,14 +25,13 @@ class GameController:
     def run(self):
         pygame.time.set_timer(pygame.USEREVENT + 1, self.model.game_manager.delay)
         clock = pygame.time.Clock()
-
         user_text = ''
         while True:
             self.view.update_view()
-
             for event in pygame.event.get():
                 if event.type == pygame.USEREVENT + 1:
-                    self.model.drop()
+                    if self.model.state == GAME_PAGE:
+                        self.model.drop()
                 elif event.type == pygame.QUIT:
                     self.quit()
                 elif event.type == pygame.KEYDOWN:
@@ -43,8 +42,8 @@ class GameController:
                             if len(user_text) < 20:
                                 user_text += event.unicode
                             if event.key == eval("pygame.K_RETURN"):
-                                self.model.set_username(user_text)
-                                self.view.set_username(user_text)
+                                self.model.set_user(user_text)
+                                self.view.set_user(user_text)
                                 self.model.set_state(START_GAME_PAGE)
                         self.view.update_user_text(user_text)
                     elif self.model.state == START_GAME_PAGE:
