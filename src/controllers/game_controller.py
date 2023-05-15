@@ -1,12 +1,11 @@
-import sys
-
 import pygame
 
-from src.models.game import Game
+from src.models.game import Game, LOGIN_PAGE, START_GAME_PAGE, GAME_PAGE
 from src.views.game_view import GameView
 
-DELAY = 750
-FPS = 60
+LOGIN_PAGE = "login"
+START_GAME_PAGE = "start_game"
+GAME_PAGE = "game"
 
 
 class GameController:
@@ -24,8 +23,10 @@ class GameController:
         }
 
     def run(self):
-        pygame.time.set_timer(pygame.USEREVENT + 1, DELAY)
+        pygame.time.set_timer(pygame.USEREVENT + 1, self.model.game_manager.delay)
         clock = pygame.time.Clock()
+
+        user_text = ''
         while True:
             self.view.update_view()
 
@@ -35,15 +36,28 @@ class GameController:
                 elif event.type == pygame.QUIT:
                     self.quit()
                 elif event.type == pygame.KEYDOWN:
-                    for key in self.key_actions:
-                        if event.key == eval("pygame.K_"
-                                             + key):
-                            self.key_actions[key]()
+                    if self.model.state == LOGIN_PAGE:
+                        if event.key == pygame.K_BACKSPACE:
+                            user_text = user_text[:-1]
+                        else:
+                            if len(user_text) < 20:
+                                user_text += event.unicode
+                            if event.key == eval("pygame.K_RETURN"):
+                                self.model.set_username(user_text)
+                                self.view.set_username(user_text)
+                                self.model.set_state(START_GAME_PAGE)
+                        self.view.update_user_text(user_text)
+                    elif self.model.state == START_GAME_PAGE:
+                        if event.key == eval("pygame.K_RETURN"):
+                            self.model.set_state(GAME_PAGE)
+                    elif self.model.state == GAME_PAGE:
+                        for key in self.key_actions:
+                            if event.key == eval("pygame.K_"
+                                                 + key):
+                                self.key_actions[key]()
 
-            clock.tick(FPS)
+            clock.tick(self.model.game_manager.fps)
 
     def quit(self):
         self.view.quit()
         self.model.quit()
-
-

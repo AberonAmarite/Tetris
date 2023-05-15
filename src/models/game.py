@@ -3,6 +3,9 @@ import sys
 import pygame
 from random import randrange as rand
 
+from src.models.game_manager import GameManager
+
+
 COLS = 10
 ROWS = 20
 
@@ -28,9 +31,16 @@ TETRIS_SHAPES = [
      [7, 7]]
 ]
 
+LOGIN_PAGE = "login"
+START_GAME_PAGE = "start_game"
+GAME_PAGE = "game"
+
 
 class Game:
     def __init__(self) -> None:
+        self.game_manager = GameManager()
+        self.state = LOGIN_PAGE
+        self.username = ""
         pygame.init()
         pygame.key.set_repeat(250, 25)
         pygame.display.set_caption('Tetris')
@@ -45,6 +55,12 @@ class Game:
 
         self.init_game()
 
+    def set_state(self, state):
+        self.state = state
+
+    def set_username(self, name):
+        self.username = name
+
     def drop(self):
         if not self.gameover and not self.paused:
             self.stone_y += 1
@@ -56,13 +72,16 @@ class Game:
                     self.stone,
                     (self.stone_x, self.stone_y))
                 self.new_stone()
+                lines_removed = 0
                 while True:
                     for i, row in enumerate(self.board[:-1]):
                         if 0 not in row:
                             self.board = self.remove_row(
                                 self.board, i)
+                            lines_removed += 1
                             break
                     else:
+                        self.game_manager.update_state(lines_removed)
                         break
 
     def rotate_stone(self):
@@ -147,5 +166,5 @@ class Game:
         board = [[0 for _ in range(COLS)]
                  for _ in range(ROWS)]
 
-        board += [[1 for _ in range(COLS)]]
+        board += [[8 for _ in range(COLS)]]
         return board
