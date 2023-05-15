@@ -12,18 +12,28 @@ WINDOW_HEIGHT = 720
 
 class GameView:
     class GameText:
-        def __init__(self, text, color, font_size, x, y, game_view):
+        def __init__(self, text, color, font_size, x, y, game_view, alignment="center"):
             self.screen = game_view.screen
             self.color = color
             self.font = pygame.font.Font('assets/fonts/FiraSans-Bold.ttf', font_size)
-            self.text = game_view.font.render(text, True, color)
+            self.text = self.font.render(text, True, color)
             self.text_rect = self.text.get_rect()
             self.text_rect.center = (x, y)
+            if alignment == "left":
+                self.align_left()
+            if alignment == "right":
+                self.align_right()
 
         def update(self, text=None):
-            if text:
+            if text is not None:
                 self.text = self.font.render(text, True, self.color)
             self.screen.blit(self.text, self.text_rect)
+
+        def align_right(self):
+            self.text_rect.center = (self.text_rect.center[0] - self.text_rect.width // 2, self.text_rect.center[1])
+
+        def align_left(self):
+            self.text_rect.center = (self.text_rect.center[0] + self.text_rect.width // 2, self.text_rect.center[1])
 
     def __init__(self, model: Game) -> None:
         super().__init__()
@@ -74,8 +84,6 @@ class GameView:
         pygame.display.update()
 
     def set_user(self, name):
+        self.start_game_page.set_username(name)
         if name:
-            self.start_game_page.set_username(name)
             self.start_game_page.set_scores(self.model.highest_score, self.model.recent_score)
-
-

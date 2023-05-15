@@ -42,6 +42,7 @@ class GameController:
                             if len(user_text) < 20:
                                 user_text += event.unicode
                             if event.key == eval("pygame.K_RETURN"):
+                                user_text = user_text[:-1]
                                 self.model.set_user(user_text)
                                 self.view.set_user(user_text)
                                 self.model.set_state(START_GAME_PAGE)
@@ -49,11 +50,15 @@ class GameController:
                     elif self.model.state == START_GAME_PAGE:
                         if event.key == eval("pygame.K_RETURN"):
                             self.model.set_state(GAME_PAGE)
+                        elif event.key == eval("pygame.K_RSHIFT"):
+                            self.model.set_state(LOGIN_PAGE)
                     elif self.model.state == GAME_PAGE:
                         for key in self.key_actions:
                             if event.key == eval("pygame.K_"
                                                  + key):
                                 self.key_actions[key]()
+                        if event.key == eval("pygame.K_RSHIFT"):
+                            self.model.set_state(START_GAME_PAGE)
 
             clock.tick(self.model.game_manager.fps)
 

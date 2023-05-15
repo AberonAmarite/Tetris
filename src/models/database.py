@@ -18,29 +18,32 @@ class GameDatabase:
 
     # Get the top 3 scores
     def get_top_scores(self):
-        self.c.execute("SELECT username, score FROM scores ORDER BY score DESC LIMIT 3")
+        self.c.execute("SELECT username, score FROM scores ORDER BY score DESC LIMIT 10")
         top_scores = self.c.fetchall()
-        print("Top 3 scores:")
+        scores_list = []
         for i, score in enumerate(top_scores):
-            return f"{i + 1}. {score[0]}: {score[1]}"
+            scores_list.append(f"{i + 1}. {score[0]}: {score[1]}")
+        return scores_list
 
     # Get the highest score for a specific user
     def get_highest_score(self, username):
-        self.c.execute("SELECT MAX(score) FROM scores WHERE username=?", (username,))
-        highest_score = self.c.fetchone()[0]
-        if highest_score:
-            return f"{username}'s highest score: {highest_score}"
-        else:
-            return f"{username} doesn't have any scores yet"
+        if username:
+            self.c.execute("SELECT MAX(score) FROM scores WHERE username=?", (username,))
+            highest_score = self.c.fetchone()[0]
+            if highest_score is not None:
+                return f"{username}'s highest score: {highest_score}"
+            else:
+                return f"{username} doesn't have any scores yet"
 
     # Get the most recent score for a specific user
     def get_most_recent_score(self, username):
-        self.c.execute("SELECT score, timestamp FROM scores WHERE username=? ORDER BY timestamp DESC LIMIT 1",
-                       (username,))
-        recent_score = self.c.fetchone()
-        if recent_score:
-            time = datetime.strptime(recent_score[1], '%Y-%m-%d %H:%M:%S.%f')
-            formatted_score = time.strftime('%d.%m.%Y %H:%M:%S')
-            return f"{username}'s most recent score: {recent_score[0]} at {formatted_score}"
-        else:
-            return f"{username} doesn't have any scores yet"
+        if username:
+            self.c.execute("SELECT score, timestamp FROM scores WHERE username=? ORDER BY timestamp DESC LIMIT 1",
+                           (username,))
+            recent_score = self.c.fetchone()
+            if recent_score is not None:
+                time = datetime.strptime(recent_score[1], '%Y-%m-%d %H:%M:%S.%f')
+                formatted_score = time.strftime('%d.%m.%Y %H:%M:%S')
+                return f"{username}'s most recent score: {recent_score[0]} at {formatted_score}"
+            else:
+                return f"{username} doesn't have any scores yet"

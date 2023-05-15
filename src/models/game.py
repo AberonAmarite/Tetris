@@ -41,8 +41,8 @@ class Game:
         self.game_manager = GameManager()
         self.db = GameDatabase()
         self.top_scores = self.db.get_top_scores()
-        self.highest_score = 0
-        self.recent_score = 0
+        self.highest_score = ""
+        self.recent_score = ""
 
         self.state = LOGIN_PAGE
         self.username = ""
@@ -67,8 +67,9 @@ class Game:
         self.init_game()
 
     def set_user_scores(self, username):
-        self.highest_score = self.db.get_highest_score(username)
-        self.recent_score = self.db.get_most_recent_score(username)
+        if username:
+            self.highest_score = self.db.get_highest_score(username)
+            self.recent_score = self.db.get_most_recent_score(username)
 
     def set_state(self, state):
         self.state = state
@@ -77,8 +78,9 @@ class Game:
         self.username = name
 
     def set_user(self, name):
-        self.set_username(name)
-        self.set_user_scores(name)
+        if name:
+            self.set_username(name)
+            self.set_user_scores(name)
 
     def drop(self):
         if not self.gameover and not self.paused:
@@ -147,7 +149,8 @@ class Game:
     def finish_game(self):
         self.gameover = True
         self.sound_gameover.play(0)
-        self.db.insert_score(self.username, self.game_manager.score)
+        if self.username:
+            self.db.insert_score(self.username, self.game_manager.score)
 
     def init_game(self):
         self.board = self.new_board()
